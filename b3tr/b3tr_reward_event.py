@@ -12,6 +12,7 @@ class B3TRRewardEvent(IndexedEvent):
 
     amount: Decimal
     appId: str
+    app_name: str
     receiver_address: str
     proof: str
     distributor_address: str

@@ -209,6 +209,7 @@ class EventIndexer:
                         topic0=self.options.topic0,
                         max_events_per_request=self.options.max_events_per_thor_request,
                         delay_between_requests=self.options.delay_between_thor_requests,
+                        round_number=self.options.round_number,
                         event_decoder=self.options.event_decoder,
                     )
 

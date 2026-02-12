@@ -14,4 +14,4 @@ class ContractEvent:
     contract_address: str
     solidity_signature: str
     topic0: str
-    event_decoder: Callable[[dict], IndexedEvent]
+    event_decoder: Callable[[dict, int], IndexedEvent]

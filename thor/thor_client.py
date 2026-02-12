@@ -30,7 +30,8 @@ class ThorClient:
         topic0: str,
         max_events_per_request: int,
         delay_between_requests: float,
-        event_decoder: Callable[[dict], IndexedEvent],
+        round_number: int,
+        event_decoder: Callable[[dict, int], IndexedEvent],
     ) -> List[IndexedEvent]:
         """
         Post requests to thor to get the events
@@ -54,6 +55,7 @@ class ThorClient:
                 topic0,
                 max_events_per_request,
                 offset,
+                round_number,
                 event_decoder,
             )
             # add to all paged events
@@ -73,7 +75,8 @@ class ThorClient:
         topic0: str,
         max_events: int,
         offset: int,
-        event_decoder: Callable[[dict], IndexedEvent],
+        round_number: int,
+        event_decoder: Callable[[dict, int], IndexedEvent],
     ) -> List[IndexedEvent]:
         """
         Makes a single request to thor to get events
@@ -93,7 +96,7 @@ class ThorClient:
         # process events from response
         events: List[IndexedEvent] = []
         for event in response_json:
-            events.append(event_decoder(event))
+            events.append(event_decoder(event, round_number))
         return events
 
     def call_contract(self, contract_address: str, call_data: str) -> dict:

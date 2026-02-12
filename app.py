@@ -1,6 +1,7 @@
 from loguru import logger
 
 from b3tr import B3TR_REWARD_DEFINITION
+from b3tr.b3tr_apps import get_apps_for_round_cached
 from indexer import EventIndexer, IndexerOptions
 
 # -----------------------------
@@ -28,18 +29,21 @@ if __name__ == "__main__":
         event_decoder=b3tr_reward_def.event_decoder,
     )
 
+    # pre-warm the app name cache
+    get_apps_for_round_cached(84)
+
     # create event indexer
     idx = EventIndexer(options)
 
     idx.start()
     final_status = idx.wait()  # blocks until done (or failed/stopped)
-    logger.info("Final status:", final_status)
+    logger.info(f"Final status: {final_status}")
 
     if idx.error:
         logger.error("Error:", repr(idx.error))
 
     completed, total = idx.progress()
     logger.info(f"Progress: {completed}/{total}")
-    logger.info("Results count:", len(idx.results()))
+    logger.info(f"Results count: {len(idx.results())}")
 
     idx.write_to_csv_file("events.csv")
