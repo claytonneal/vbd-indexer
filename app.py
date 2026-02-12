@@ -18,9 +18,11 @@ if __name__ == "__main__":
             "https://mainnetc2.vechain.network",
             "https://mainnet.vecha.in",
             "https://vethor-node.vechain.com",
+            "https://node.vechain.energy",
+            "https://sync-mainnet.vechain.org",
         ],
-        task_block_size=20,
-        delay_between_thor_requests=0.5,
+        task_block_size=240,
+        delay_between_thor_requests=0.2,
         max_events_per_thor_request=1000,
         event_decoder=b3tr_reward_def.event_decoder,
     )

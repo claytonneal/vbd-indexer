@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from decimal import Decimal
 
 from indexer import IndexedEvent
 
@@ -9,7 +10,7 @@ class B3TRRewardEvent(IndexedEvent):
     Data gathered from the "RewardDistributed" solidity event
     """
 
-    amount: int
+    amount: Decimal
     appId: str
     receiver_address: str
     proof: str

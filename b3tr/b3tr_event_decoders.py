@@ -2,6 +2,7 @@ from eth_abi.abi import decode
 from eth_utils.address import to_checksum_address
 
 from b3tr.b3tr_reward_event import B3TRRewardEvent
+from utils.units import format_wei
 
 
 def decode_reward_event(log: dict) -> B3TRRewardEvent:
@@ -28,12 +29,15 @@ def decode_reward_event(log: dict) -> B3TRRewardEvent:
         ["uint256", "string"],
         bytes.fromhex(data[2:]),
     )
+    # convert b3tr wei to b3tr units
+    reward_b3tr = format_wei(reward_amount)
+    # return event
     return B3TRRewardEvent(
         block_number=log["meta"]["blockNumber"],
         timestamp=log["meta"]["blockTimestamp"],
         tx_id=log["meta"]["txID"],
         clause_index=log["meta"]["clauseIndex"],
-        amount=reward_amount,
+        amount=reward_b3tr,
         receiver_address=receiver_address,
         proof=reward_proof,
         appId=app_id,

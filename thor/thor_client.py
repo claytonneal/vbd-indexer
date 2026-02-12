@@ -44,6 +44,8 @@ class ThorClient:
         all_pages_received = False
         all_events: List[IndexedEvent] = []
         while not all_pages_received:
+            # sleep between requests
+            time.sleep(delay_between_requests)
             # get events for page
             page_events = self._send_get_events(
                 from_block,
@@ -61,8 +63,6 @@ class ThorClient:
                 all_pages_received = True
             else:
                 offset = offset + max_events_per_request
-            # delay between requests
-            time.sleep(delay_between_requests)
         return all_events
 
     def _send_get_events(
@@ -88,6 +88,7 @@ class ThorClient:
         }
         # do http post
         response = self._client.post("/logs/event", json=post_data)
+        response.raise_for_status()
         response_json = response.json()
         # process events from response
         events: List[IndexedEvent] = []
