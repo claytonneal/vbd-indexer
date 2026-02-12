@@ -7,8 +7,14 @@ authors = [
 ]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<4.0"
 dependencies = [
+    "httpx (>=0.28.1,<0.29.0)",
+    "eth-abi (>=5.2.0,<6.0.0)",
+    "eth-utils (>=5.3.1,<6.0.0)",
+    "pycryptodome (>=3.23.0,<4.0.0)",
+    "pandas (>=3.0.0,<4.0.0)",
+    "pyarrow (>=23.0.0,<24.0.0)",
 ]
 
 
