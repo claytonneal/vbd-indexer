@@ -17,5 +17,5 @@ class IndexerOptions:
     thor_endpoints: List[str]
     task_block_size: int
     max_events_per_thor_request: int
-    delay_between_thor_requests: int
+    delay_between_thor_requests: float
     event_decoder: Callable[[dict], IndexedEvent]

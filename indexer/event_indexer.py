@@ -38,7 +38,7 @@ class EventIndexer:
             raise ValueError("max_events_per_thor_request must be <= 1000")
         if options.max_events_per_thor_request < 1:
             raise ValueError("max_events_per_thor_request must be > 0")
-        if options.delay_between_thor_requests < 1:
+        if options.delay_between_thor_requests <= 0:
             raise ValueError("delay_between_thor_requests must be > 0")
 
         # save options

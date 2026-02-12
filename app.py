@@ -20,8 +20,8 @@ if __name__ == "__main__":
             "https://vethor-node.vechain.com",
         ],
         task_block_size=20,
-        delay_between_thor_requests=1,
-        max_events_per_thor_request=999,
+        delay_between_thor_requests=0.5,
+        max_events_per_thor_request=1000,
         event_decoder=b3tr_reward_def.event_decoder,
     )
 

@@ -29,7 +29,7 @@ class ThorClient:
         contract_address: str,
         topic0: str,
         max_events_per_request: int,
-        delay_between_requests: int,
+        delay_between_requests: float,
         event_decoder: Callable[[dict], IndexedEvent],
     ) -> List[IndexedEvent]:
         """
