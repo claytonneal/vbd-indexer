@@ -4,7 +4,9 @@ from dataclasses import asdict
 from typing import List, Optional, Tuple
 
 import pandas as pd
+from loguru import logger
 
+from b3tr.b3tr_round import get_block_range_for_round
 from thor import ThorClient, ThorClientOptions
 
 from .indexed_event import IndexedEvent
@@ -26,10 +28,8 @@ class EventIndexer:
     """
 
     def __init__(self, options: IndexerOptions) -> None:
-        if options.block_start < 0 or options.block_end < 0:
-            raise ValueError("block_start/block_end must be >= 0")
-        if options.block_end < options.block_start:
-            raise ValueError("block_end must be >= block_start")
+        if options.round_number <= 0:
+            raise ValueError("round_id must be >= 0")
         if not options.thor_endpoints:
             raise ValueError("endpoints must not be empty")
         if options.task_block_size <= 0:
@@ -88,6 +88,11 @@ class EventIndexer:
     def start(self) -> None:
         if self.status not in (IndexerStatus.CREATED, IndexerStatus.STOPPED):
             raise RuntimeError(f"Cannot start Indexer in state {self.status}")
+        logger.info("Starting indexing")
+        # get block start and end for round number
+        self.block_start, self.block_end = get_block_range_for_round(
+            self.options.round_number
+        )
         self._build_task_queue()
         with self._status_lock:
             self._status = IndexerStatus.RUNNING
@@ -142,6 +147,7 @@ class EventIndexer:
             raise RuntimeError(
                 f"Cannot save events to file when indexer in state: {self.status}"
             )
+        logger.info(f"Writing csv file {filename}")
         with self._results_lock:
             records = [asdict(e) for e in self._results]
             df = pd.DataFrame.from_records(records)
@@ -155,8 +161,8 @@ class EventIndexer:
         # Clear any previous queue contents by replacing the queue
         self._tasks = queue.Queue()
 
-        start = self.options.block_start
-        end = self.options.block_end
+        start = self.block_start
+        end = self.block_end
         step = self.options.task_block_size
 
         tasks = 0
@@ -171,7 +177,9 @@ class EventIndexer:
             self._total_tasks = tasks
             self._completed_tasks = 0
 
-        # Optional: add sentinels (one per worker) for clean shutdown
+        logger.info(f"Created {self._total_tasks} indexing tasks")
+
+        # Add sentinels (one per worker) for clean shutdown
         for _ in self.options.thor_endpoints:
             self._tasks.put(IndexerTask(-1, -1))  # sentinel
 

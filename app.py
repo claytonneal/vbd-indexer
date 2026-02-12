@@ -1,3 +1,5 @@
+from loguru import logger
+
 from b3tr import B3TR_REWARD_DEFINITION
 from indexer import EventIndexer, IndexerOptions
 
@@ -8,8 +10,7 @@ if __name__ == "__main__":
     # create indexer options
     b3tr_reward_def = B3TR_REWARD_DEFINITION
     options = IndexerOptions(
-        block_start=23948404,
-        block_end=23948404 + 60479,
+        round_number=84,
         contract_address=b3tr_reward_def.contract_address,
         topic0=b3tr_reward_def.topic0,
         thor_endpoints=[
@@ -32,13 +33,13 @@ if __name__ == "__main__":
 
     idx.start()
     final_status = idx.wait()  # blocks until done (or failed/stopped)
-    print("Final status:", final_status)
+    logger.info("Final status:", final_status)
 
     if idx.error:
-        print("Error:", repr(idx.error))
+        logger.error("Error:", repr(idx.error))
 
     completed, total = idx.progress()
-    print(f"Progress: {completed}/{total}")
-    print("Results count:", len(idx.results()))
+    logger.info(f"Progress: {completed}/{total}")
+    logger.info("Results count:", len(idx.results()))
 
     idx.write_to_csv_file("events.csv")

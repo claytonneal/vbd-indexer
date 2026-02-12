@@ -10,8 +10,7 @@ class IndexerOptions:
     Indexer options
     """
 
-    block_start: int
-    block_end: int
+    round_number: int
     contract_address: str
     topic0: str
     thor_endpoints: List[str]

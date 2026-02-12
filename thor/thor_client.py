@@ -95,3 +95,22 @@ class ThorClient:
         for event in response_json:
             events.append(event_decoder(event))
         return events
+
+    def call_contract(self, contract_address: str, call_data: str) -> dict:
+        """
+        Performs a contract call with the specified call data
+        Returns the json data response without decoding
+        """
+        if self._client is None:
+            raise RuntimeError("ThorClient is disposed")
+        # build post data
+        post_data = {
+            "clauses": [{"to": contract_address, "value": "0", "data": call_data}]
+        }
+        # do the post request
+        response = self._client.post("/accounts/*", json=post_data)
+        response.raise_for_status()
+        response_json = response.json()
+        # get data from response
+        response_data = response_json[0]["data"]
+        return response_data
