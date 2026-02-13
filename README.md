@@ -20,7 +20,7 @@
 
     src/vbd_indexer/
     ├── app.py          # CLI entrypoint
-    ├── thor/           # Thor RPC client
+    ├── thor/           # Thor rest client
     ├── indexer/        # Parallel indexing engine
     ├── b3tr/           # Contract helpers & ABI logic
     └── utils/          # Units, formatting, helpers
