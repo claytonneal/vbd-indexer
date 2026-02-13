@@ -71,7 +71,7 @@ poetry run vbd-indexer 83
 
 Currently focused on:
 
--   **B3TR reward distribution**
+-   **B3TR reward distribution events**
 
 ---
 
@@ -89,7 +89,7 @@ Optimized for:
 
 ## 🛣 Roadmap
 
--   [ ] Async RPC engine for **10× throughput**
+-   [ ] Async engine for **10× throughput**
 -   [ ] PostgreSQL direct ingestion
 -   [ ] More VBD events supported
 -   [ ] PyPI package release
