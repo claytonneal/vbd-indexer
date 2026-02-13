@@ -1,8 +1,8 @@
 from eth_abi.abi import decode
 from eth_utils.address import to_checksum_address
 
-from b3tr.b3tr_reward_event import B3TRRewardEvent
-from utils.units import format_wei
+from vbd_indexer.b3tr.b3tr_reward_event import B3TRRewardEvent
+from vbd_indexer.utils.units import format_wei
 
 from .b3tr_apps import get_app_name
 

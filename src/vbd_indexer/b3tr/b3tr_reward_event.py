@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from decimal import Decimal
 
-from indexer import IndexedEvent
+from vbd_indexer.indexer import IndexedEvent
 
 
 @dataclass(frozen=True)

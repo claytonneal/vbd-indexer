@@ -6,8 +6,8 @@ from typing import List, Optional, Tuple
 import pandas as pd
 from loguru import logger
 
-from b3tr.b3tr_round import get_block_range_for_round
-from thor import ThorClient, ThorClientOptions
+from vbd_indexer.b3tr.b3tr_round import get_block_range_for_round
+from vbd_indexer.thor import ThorClient, ThorClientOptions
 
 from .indexed_event import IndexedEvent
 from .indexer_options import IndexerOptions

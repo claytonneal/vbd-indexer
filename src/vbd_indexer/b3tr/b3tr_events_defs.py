@@ -1,6 +1,6 @@
 from eth_utils.crypto import keccak
 
-from indexer.contract_event import ContractEvent
+from vbd_indexer.indexer.contract_event import ContractEvent
 
 from .b3tr_contracts import B3TR_CONTRACTS
 from .b3tr_event_decoders import decode_reward_event

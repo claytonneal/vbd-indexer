@@ -3,8 +3,8 @@ from typing import Callable, List, Optional
 
 import httpx
 
-from indexer.indexed_event import IndexedEvent
-from thor.thor_client_options import ThorClientOptions
+from vbd_indexer.indexer.indexed_event import IndexedEvent
+from vbd_indexer.thor.thor_client_options import ThorClientOptions
 
 
 class ThorClient:

@@ -4,8 +4,8 @@ from eth_abi.abi import decode, encode
 from eth_utils.crypto import keccak
 from loguru import logger
 
-from b3tr.b3tr_contracts import B3TR_CONTRACTS
-from thor import ThorClient, ThorClientOptions
+from vbd_indexer.b3tr.b3tr_contracts import B3TR_CONTRACTS
+from vbd_indexer.thor import ThorClient, ThorClientOptions
 
 
 def get_block_range_for_round(round_number: int) -> Tuple[int, int]:
