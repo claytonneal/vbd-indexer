@@ -9,5 +9,3 @@ class IndexedEvent:
 
     block_number: int
     timestamp: int
-    tx_id: str
-    clause_index: int

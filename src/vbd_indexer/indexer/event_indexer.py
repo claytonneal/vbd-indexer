@@ -7,7 +7,8 @@ import pandas as pd
 from loguru import logger
 
 from vbd_indexer.b3tr.b3tr_round import get_block_range_for_round
-from vbd_indexer.thor import ThorClient, ThorClientOptions
+from vbd_indexer.thor.thor_client import ThorClient
+from vbd_indexer.thor.thor_client_options import ThorClientOptions
 
 from .indexed_event import IndexedEvent
 from .indexer_options import IndexerOptions
@@ -150,8 +151,20 @@ class EventIndexer:
         logger.info(f"Writing csv file {filename}")
         with self._results_lock:
             records = [asdict(e) for e in self._results]
-            df = pd.DataFrame.from_records(records)
+            df = pd.json_normalize(
+                records
+            )  # want to flattern any nested Dicts to new columns
             df.to_csv(filename, index=False)
+
+    def clear_results(self) -> None:
+        """
+        Clear the indexing results
+        """
+        with self._status_lock:
+            if self._status == IndexerStatus.RUNNING:
+                raise RuntimeError("Cannot clear results while indexing is in progress")
+        with self._results_lock:
+            self._results.clear()
 
     # --------
     # Internals
@@ -201,17 +214,23 @@ class EventIndexer:
                     if task.start_block == -1 and task.end_block == -1:
                         return
 
-                    # Get events from thor
-                    events = thor_client.get_events(
+                    # Get events from thor with decoder
+                    raw_events = thor_client.get_events(
                         from_block=task.start_block,
                         to_block=task.end_block,
                         contract_address=self.options.contract_address,
                         topic0=self.options.topic0,
                         max_events_per_request=self.options.max_events_per_thor_request,
                         delay_between_requests=self.options.delay_between_thor_requests,
-                        round_number=self.options.round_number,
                         event_decoder=self.options.event_decoder,
                     )
+
+                    # transform raw events with the transformer
+                    events = [
+                        self.options.event_transformer(raw_event)
+                        for raw_event in raw_events
+                    ]
+                    raw_events = []
 
                     # Contribute results (shared structure)
                     if events:

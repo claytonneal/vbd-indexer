@@ -17,4 +17,5 @@ class IndexerOptions:
     task_block_size: int
     max_events_per_thor_request: int
     delay_between_thor_requests: float
-    event_decoder: Callable[[dict, int], IndexedEvent]
+    event_decoder: Callable[[dict], IndexedEvent]
+    event_transformer: Callable[[IndexedEvent], IndexedEvent]

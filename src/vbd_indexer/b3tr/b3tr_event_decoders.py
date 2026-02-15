@@ -1,13 +1,10 @@
 from eth_abi.abi import decode
 from eth_utils.address import to_checksum_address
 
-from vbd_indexer.b3tr.b3tr_reward_event import B3TRRewardEvent
-from vbd_indexer.utils.units import format_wei
-
-from .b3tr_apps import get_app_name
+from vbd_indexer.b3tr.b3tr_models import B3TRRewardRawEvent
 
 
-def decode_reward_event(log: dict, round_number: int) -> B3TRRewardEvent:
+def decode_reward_event(log: dict) -> B3TRRewardRawEvent:
     """
     Decodes an event to a B3TRRewardEvent class
     This event has signature:
@@ -31,20 +28,13 @@ def decode_reward_event(log: dict, round_number: int) -> B3TRRewardEvent:
         ["uint256", "string"],
         bytes.fromhex(data[2:]),
     )
-    # convert b3tr wei to b3tr units
-    reward_b3tr = format_wei(reward_amount)
-    # map app id to app name
-    app_name = get_app_name(app_id, round_number)
     # return event
-    return B3TRRewardEvent(
+    return B3TRRewardRawEvent(
         block_number=log["meta"]["blockNumber"],
         timestamp=log["meta"]["blockTimestamp"],
-        tx_id=log["meta"]["txID"],
-        clause_index=log["meta"]["clauseIndex"],
-        amount=reward_b3tr,
+        amount=reward_amount,
         receiver_address=receiver_address,
         proof=reward_proof,
         appId=app_id,
-        app_name=app_name,
         distributor_address=distributor_address,
     )

@@ -22,7 +22,7 @@
     ├── app.py          # CLI entrypoint
     ├── thor/           # Thor rest client
     ├── indexer/        # Parallel indexing engine
-    ├── b3tr/           # Contract helpers & ABI logic
+    ├── b3tr/           # Contract helpers, decoders, transformers
     └── utils/          # Units, formatting, helpers
 
 Core principles:
@@ -31,6 +31,7 @@ Core principles:
 -   **Typed decoding**
 -   **Separation of concerns**
 -   **Analytics-friendly outputs**
+-   **Follows principles of extract, decode, transform**
 
 ---
 

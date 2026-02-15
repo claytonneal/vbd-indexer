@@ -1,9 +1,10 @@
 import fire
 from loguru import logger
 
-from vbd_indexer.b3tr import B3TR_REWARD_DEFINITION
-from vbd_indexer.b3tr.b3tr_apps import get_apps_for_round_cached
-from vbd_indexer.indexer import EventIndexer, IndexerOptions
+from vbd_indexer.b3tr.b3tr_apps import warm_app_name_cache
+from vbd_indexer.b3tr.b3tr_events_defs import B3TR_REWARD_DEFINITION
+from vbd_indexer.indexer.event_indexer import EventIndexer
+from vbd_indexer.indexer.indexer_options import IndexerOptions
 
 # -----------------------------
 # Logo printer
@@ -48,9 +49,10 @@ def index_rewards(round_id: int) -> None:
         delay_between_thor_requests=0.2,
         max_events_per_thor_request=1000,
         event_decoder=b3tr_reward_def.event_decoder,
+        event_transformer=b3tr_reward_def.event_transformer,
     )
     # pre-warm the app name cache
-    get_apps_for_round_cached(round_id)
+    warm_app_name_cache(round_id)
     # create event indexer
     idx = EventIndexer(options)
     idx.start()

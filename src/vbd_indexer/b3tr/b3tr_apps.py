@@ -1,19 +1,34 @@
-from functools import lru_cache
-from typing import Dict, List
+from typing import Dict
 
 from eth_abi.abi import decode, encode
 from eth_utils.crypto import keccak
 from loguru import logger
 
 from vbd_indexer.b3tr.b3tr_contracts import B3TR_CONTRACTS
-from vbd_indexer.thor import ThorClient, ThorClientOptions
+from vbd_indexer.thor.thor_client import ThorClient, ThorClientOptions
+
+# cached values
+_cached_app_map: Dict[str, str] | None = None
+_cached_round: int | None = None
 
 
-def _fetch_apps_for_round(round_number: int) -> List[Dict]:
+def warm_app_name_cache(round_number: int) -> None:
     """
     Gets a list of app ids and app names for the round number
-    Only need to call this once and then cache it
+    Only need to call this once as it populates above caches
     """
+    global _cached_app_map, _cached_round
+    if round_number != _cached_round:
+        # clear cache if different round
+        if _cached_app_map is not None:
+            _cached_app_map.clear()
+    if round_number == _cached_app_map and _cached_app_map is not None:
+        # raise error if same round and already cached
+        raise ValueError(f"App names are already cached for round: {round_number}")
+    # setup cache
+    _cached_round = round_number
+    _cached_app_map = {}
+    # call contract function
     client_options = ThorClientOptions(
         thor_url="https://mainnet.vechain.org", http_request_timeout=10
     )
@@ -35,41 +50,25 @@ def _fetch_apps_for_round(round_number: int) -> List[Dict]:
         app_type = "(bytes32,address,string,string,uint256,bool)[]"
         apps = decode([app_type], raw)[0]
         # extract only id and name
-        result = []
         for app in apps:
-            app_id = "0x" + app[0].hex()
+            app_id = "0x" + app[0].hex().lower()
             name = app[2]
-            result.append(
-                {
-                    "id": app_id,
-                    "name": name,
-                }
-            )
-        logger.info(f"Round {round_number} has {len(result)} active apps")
-        return result
-
+            _cached_app_map[app_id] = name
+        logger.info(f"Round {round_number} has {len(_cached_app_map)} active apps")
     finally:
         thor_client.dispose()
 
 
-@lru_cache(maxsize=64)
-def get_apps_for_round_cached(round_number: int) -> Dict[str, str]:
-    """
-    Cached map: app_id -> name for a given round_number.
-    Only hits the chain once per round (per process).
-    """
-    apps = _fetch_apps_for_round(round_number)
-    return {a["id"].lower(): a["name"] for a in apps}
-
-
-def get_app_name(app_id: str, round_number: int) -> str:
+def get_app_name(app_id: str) -> str:
     """
     Returns the app name for an id, using cached round data.
     If not found, returns None.
     """
-    app_map = get_apps_for_round_cached(round_number)
-    app_name = app_map.get(app_id.lower())
+    if _cached_app_map is None:
+        raise RuntimeError(
+            "Cache not warmed – call warm_app_name_cache(round_number) first"
+        )
+    app_name = _cached_app_map.get(app_id.lower())
     if app_name is None:
-        logger.error(f"No app name for app id {app_id}")
-        raise ValueError(f"No app name for app id {app_id}")
+        raise ValueError(f"No app name found for app id: {app_id}")
     return app_name
