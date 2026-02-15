@@ -1,14 +1,17 @@
 from dataclasses import dataclass
 from typing import Callable, Generic, TypeVar
 
-from .indexed_event import IndexedEvent
+from vbd_indexer.thor.raw_event import RawEvent
 
-DecodedEventType = TypeVar("DecodedEventType", bound=IndexedEvent)
-TransformedEventType = TypeVar("TransformedEventType", bound=IndexedEvent)
+from .decoded_event import DecodedEvent
+from .transformed_event import TransformedEvent
+
+EDecoded = TypeVar("EDecoded", bound=DecodedEvent)
+ETransformed = TypeVar("ETransformed", bound=TransformedEvent)
 
 
 @dataclass(frozen=True)
-class ContractEvent(Generic[DecodedEventType, TransformedEventType]):
+class ContractEvent(Generic[EDecoded, ETransformed]):
     """
     Defines an index-able event detals
     """
@@ -17,5 +20,5 @@ class ContractEvent(Generic[DecodedEventType, TransformedEventType]):
     contract_address: str
     solidity_signature: str
     topic0: str
-    event_decoder: Callable[[dict], DecodedEventType]
-    event_transformer: Callable[[DecodedEventType], TransformedEventType]
+    event_decoder: Callable[[RawEvent], EDecoded]
+    event_transformer: Callable[[EDecoded], ETransformed]

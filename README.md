@@ -31,7 +31,7 @@ Core principles:
 -   **Typed decoding**
 -   **Separation of concerns**
 -   **Analytics-friendly outputs**
--   **Follows principles of extract, decode, transform**
+-   **Follows principles of extract, decode, transform, analyse**
 
 ---
 

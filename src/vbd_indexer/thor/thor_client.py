@@ -1,9 +1,9 @@
 import time
-from typing import Callable, List, Optional
+from typing import List, Optional
 
 import httpx
 
-from vbd_indexer.indexer.indexed_event import IndexedEvent
+from vbd_indexer.thor.raw_event import RawEvent
 from vbd_indexer.thor.thor_client_options import ThorClientOptions
 
 
@@ -30,8 +30,7 @@ class ThorClient:
         topic0: str,
         max_events_per_request: int,
         delay_between_requests: float,
-        event_decoder: Callable[[dict], IndexedEvent],
-    ) -> List[IndexedEvent]:
+    ) -> List[RawEvent]:
         """
         Post requests to thor to get the events
         Each request is for max_events_per_request events, so pagination is used to get all events
@@ -42,7 +41,7 @@ class ThorClient:
             raise RuntimeError("ThorClient is disposed")
         offset = 0
         all_pages_received = False
-        all_events: List[IndexedEvent] = []
+        all_events: List[RawEvent] = []
         while not all_pages_received:
             # sleep between requests
             time.sleep(delay_between_requests)
@@ -54,7 +53,6 @@ class ThorClient:
                 topic0,
                 max_events_per_request,
                 offset,
-                event_decoder,
             )
             # add to all paged events
             all_events.extend(page_events)
@@ -73,8 +71,7 @@ class ThorClient:
         topic0: str,
         max_events: int,
         offset: int,
-        event_decoder: Callable[[dict], IndexedEvent],
-    ) -> List[IndexedEvent]:
+    ) -> List[RawEvent]:
         """
         Makes a single request to thor to get events
         """
@@ -91,9 +88,16 @@ class ThorClient:
         response.raise_for_status()
         response_json = response.json()
         # process events from response
-        events: List[IndexedEvent] = []
+        events: List[RawEvent] = []
         for event in response_json:
-            events.append(event_decoder(event))
+            events.append(
+                RawEvent(
+                    block_number=event["meta"]["blockNumber"],
+                    timestamp=event["meta"]["blockTimestamp"],
+                    data=event["data"],
+                    topics=event["topics"],
+                )
+            )
         return events
 
     def call_contract(self, contract_address: str, call_data: str) -> dict:

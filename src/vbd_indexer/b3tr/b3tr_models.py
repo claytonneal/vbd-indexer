@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import Dict
 
-from vbd_indexer.indexer.indexed_event import IndexedEvent
+from vbd_indexer.indexer.decoded_event import DecodedEvent
+from vbd_indexer.indexer.transformed_event import TransformedEvent
 
 # ---------------------------
 # Indexed Event objects
@@ -10,13 +11,13 @@ from vbd_indexer.indexer.indexed_event import IndexedEvent
 
 
 @dataclass(frozen=True)
-class B3TRRewardRawEvent(IndexedEvent):
+class B3TRRewardDecodedEvent(DecodedEvent):
     """
     Data gathered from the direct decoding of a "RewardDistributed" solidity event
     """
 
     amount: int
-    appId: str
+    app_id: str
     receiver_address: str
     proof: str
     distributor_address: str
@@ -28,7 +29,7 @@ class B3TRRewardRawEvent(IndexedEvent):
 
 
 @dataclass(frozen=True)
-class B3TRRewardEvent(IndexedEvent):
+class B3TRRewardEvent(TransformedEvent):
     """
     A transformed/sanitised B3TRRewardRawEvent
     """

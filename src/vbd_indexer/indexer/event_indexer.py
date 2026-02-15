@@ -1,7 +1,7 @@
 import queue
 import threading
 from dataclasses import asdict
-from typing import List, Optional, Tuple
+from typing import Generic, List, Optional, Tuple, TypeVar
 
 import pandas as pd
 from loguru import logger
@@ -10,17 +10,21 @@ from vbd_indexer.b3tr.b3tr_round import get_block_range_for_round
 from vbd_indexer.thor.thor_client import ThorClient
 from vbd_indexer.thor.thor_client_options import ThorClientOptions
 
-from .indexed_event import IndexedEvent
+from .decoded_event import DecodedEvent
 from .indexer_options import IndexerOptions
 from .indexer_status import IndexerStatus
 from .indexer_task import IndexerTask
+from .transformed_event import TransformedEvent
 
 # -----------------------------
 # Indexer
 # -----------------------------
 
+EDecoded = TypeVar("EDecoded", bound=DecodedEvent)
+ETransformed = TypeVar("ETransformed", bound=TransformedEvent)
 
-class EventIndexer:
+
+class EventIndexer(Generic[EDecoded, ETransformed]):
     """
     Spawns one worker per thor endpoint. Each worker:
       - pulls an IndexerTask from a shared queue
@@ -28,7 +32,7 @@ class EventIndexer:
     The main thread can call wait() until status is COMPLETED/FAILED/STOPPED.
     """
 
-    def __init__(self, options: IndexerOptions) -> None:
+    def __init__(self, options: IndexerOptions[EDecoded, ETransformed]) -> None:
         if options.round_number <= 0:
             raise ValueError("round_id must be >= 0")
         if not options.thor_endpoints:
@@ -55,7 +59,7 @@ class EventIndexer:
 
         # Shared results structure
         self._results_lock = threading.Lock()
-        self._results: List[IndexedEvent] = []
+        self._results: List[ETransformed] = []
 
         # For tracking progress
         self._total_tasks = 0
@@ -76,7 +80,7 @@ class EventIndexer:
         with self._status_lock:
             return self._error
 
-    def results(self) -> List[IndexedEvent]:
+    def results(self) -> List[ETransformed]:
         # Return a snapshot copy
         with self._results_lock:
             return list(self._results)
@@ -214,7 +218,7 @@ class EventIndexer:
                     if task.start_block == -1 and task.end_block == -1:
                         return
 
-                    # Get events from thor with decoder
+                    # Get raw events from thor with decoder
                     raw_events = thor_client.get_events(
                         from_block=task.start_block,
                         to_block=task.end_block,
@@ -222,20 +226,26 @@ class EventIndexer:
                         topic0=self.options.topic0,
                         max_events_per_request=self.options.max_events_per_thor_request,
                         delay_between_requests=self.options.delay_between_thor_requests,
-                        event_decoder=self.options.event_decoder,
                     )
 
-                    # transform raw events with the transformer
-                    events = [
-                        self.options.event_transformer(raw_event)
+                    # decode the raw events
+                    decoded_events = [
+                        self.options.event_decoder(raw_event)
                         for raw_event in raw_events
                     ]
+
+                    # transform decoded events to final type
+                    trans_events = [
+                        self.options.event_transformer(decoded_event)
+                        for decoded_event in decoded_events
+                    ]
                     raw_events = []
+                    decoded_events = []
 
                     # Contribute results (shared structure)
-                    if events:
+                    if trans_events:
                         with self._results_lock:
-                            self._results.extend(events)
+                            self._results.extend(trans_events)
 
                     # Progress tracking
                     with self._progress_lock:
