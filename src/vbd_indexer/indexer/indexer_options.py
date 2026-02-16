@@ -23,4 +23,4 @@ class IndexerOptions(Generic[EDecoded, ETransformed]):
     max_events_per_thor_request: int
     delay_between_thor_requests: float
     event_decoder: Callable[[RawEvent], EDecoded]
-    event_transformer: Callable[[EDecoded], ETransformed]
+    event_transformer: Callable[[EDecoded], ETransformed | None]

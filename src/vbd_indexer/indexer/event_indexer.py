@@ -156,7 +156,7 @@ class EventIndexer(Generic[EDecoded, ETransformed]):
         with self._results_lock:
             records = [asdict(e) for e in self._results]
             df = pd.json_normalize(
-                records
+                records, sep="_"
             )  # want to flattern any nested Dicts to new columns
             df.to_csv(filename, index=False)
 
@@ -239,13 +239,16 @@ class EventIndexer(Generic[EDecoded, ETransformed]):
                         self.options.event_transformer(decoded_event)
                         for decoded_event in decoded_events
                     ]
+                    # remove any None values - where transformer couldnt transform
+                    cleaned_trans_events = [e for e in trans_events if e is not None]
                     raw_events = []
                     decoded_events = []
+                    trans_events = []
 
                     # Contribute results (shared structure)
-                    if trans_events:
+                    if cleaned_trans_events:
                         with self._results_lock:
-                            self._results.extend(trans_events)
+                            self._results.extend(cleaned_trans_events)
 
                     # Progress tracking
                     with self._progress_lock:

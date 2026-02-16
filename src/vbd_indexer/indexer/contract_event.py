@@ -21,4 +21,4 @@ class ContractEvent(Generic[EDecoded, ETransformed]):
     solidity_signature: str
     topic0: str
     event_decoder: Callable[[RawEvent], EDecoded]
-    event_transformer: Callable[[EDecoded], ETransformed]
+    event_transformer: Callable[[EDecoded], ETransformed | None]

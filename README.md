@@ -1,6 +1,6 @@
 # ⚡ VBD Indexer
 
-> High-performance Python indexer for **VeChain B3TR / VeBetterDAO** events.  
+> High-performance Python indexer & analyzer for **VeChain B3TR / VeBetterDAO** events.  
 > Designed for **speed, correctness, and production-grade data pipelines**.
 
 ---
@@ -10,7 +10,8 @@
 - 🔎 **On-chain event indexing** from VeChain Thor
 - ⚙️ **Parallel worker architecture** for fast block scanning
 - 🧠 **ABI decoding** of complex Solidity return types & events
-- 🗂 **CSV export** for analytics & data science workflows
+- 🗂 **CSV export** of event data for data analytics workflows
+- 📊 **JSON export** of summaries & analysis for frontend applications
 - 🧱 Clean **modular SDK-style structure**
 - 🚀 Ready for **CLI usage, automation, and CI pipelines**
 
@@ -54,16 +55,16 @@ poetry install
 
 ## 🚀 Usage
 
-Run the CLI:
+To extract event data for a round into a CSV file:
 
 ``` bash
-poetry run vbd-indexer <round id>
+poetry run vbd-indexer extract <round id>
 ```
 
-Example commands:
+To produce a json summary from the generated CSV file:
 
 ``` bash
-poetry run vbd-indexer 83
+poetry run vbd-indexer summarize <round id>
 ```
 
 ---
@@ -78,20 +79,26 @@ Currently focused on:
 
 ## 📊 Data Output
 
-Typical outputs:
+CSV output:
 
 -   `rewards-events-round-<round_id>.csv`
 
 Optimized for:
 
--   **Machine learning pipelines**
+-   **Data analysis & Machine learning pipelines**
+
+JSON output:
+
+- `rewards-events-summary-round-<round_id>.json`
+
+Optimized for:
+
+-   **Front end applications**
 
 ---
 
 ## 🛣 Roadmap
 
--   [ ] Async engine for **10× throughput**
--   [ ] PostgreSQL direct ingestion
 -   [ ] More VBD events supported
 -   [ ] PyPI package release
 -   [ ] Public VeBetterDAO analytics dashboard
@@ -104,8 +111,8 @@ PRs welcome.
 
 If you're working on:
 
--   VeChain tooling\
--   Data pipelines\
+-   VeChain tooling
+-   Data pipelines
 -   Web3 analytics
 
 ...this project is meant to be **a solid foundation**.

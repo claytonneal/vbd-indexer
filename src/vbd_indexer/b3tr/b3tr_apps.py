@@ -59,7 +59,7 @@ def warm_app_name_cache(round_number: int) -> None:
         thor_client.dispose()
 
 
-def get_app_name(app_id: str) -> str:
+def get_app_name(app_id: str) -> str | None:
     """
     Returns the app name for an id, using cached round data.
     If not found, returns None.
@@ -70,5 +70,6 @@ def get_app_name(app_id: str) -> str:
         )
     app_name = _cached_app_map.get(app_id.lower())
     if app_name is None:
-        raise ValueError(f"No app name found for app id: {app_id}")
+        logger.warning(f"No app name found for app id: {app_id}")
+        app_name = None
     return app_name

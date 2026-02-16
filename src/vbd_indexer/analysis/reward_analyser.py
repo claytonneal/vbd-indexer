@@ -1,24 +1,37 @@
-from dataclasses import asdict
-from typing import List
+from decimal import Decimal
 
 import pandas as pd
 from loguru import logger
 
 from vbd_indexer.b3tr.b3tr_impact_names import B3TR_IMPACT_NAMES
-from vbd_indexer.b3tr.b3tr_models import B3TRRewardEvent
 
 
-def _analyse_rewards(rewards: List["B3TRRewardEvent"]) -> pd.DataFrame:
+def _load_rewards_csv(round_id: int) -> pd.DataFrame:
+    """
+    Loads rewards data csv file for specified round
+    """
+    file_name = f"rewards-events-round-{round_id}.csv"
+    df = pd.read_csv(
+        file_name,
+        dtype={
+            "block_number": "int64",
+            "app_id": "string",
+            "app_name": "string",
+            "receiver_address": "string",
+        },
+    )
+    # apply types to columns
+    df["amount"] = df["amount"].apply(Decimal)
+    df["timestamp"] = df["timestamp"].apply(pd.to_numeric, errors="coerce")
+    impact_cols = [c for c in df.columns if c.startswith("impact_")]
+    df[impact_cols] = df[impact_cols].apply(pd.to_numeric, errors="coerce").fillna(0)
+    return df
+
+
+def _analyse_rewards(df: pd.DataFrame) -> pd.DataFrame:
     """
     Runs analysis on the list of rewards and returns a per-app summary.
     """
-    # convert to DataFrame (impact dict expands to impact_<name>)
-    records = [asdict(e) for e in rewards]
-    df = pd.json_normalize(records, sep="_")
-
-    # Ensure amount is numeric (common if you stored Decimal as str)
-    df["amount"] = pd.to_numeric(df["amount"])
-
     # build impact aggregations
     impact_aggs = {
         f"{name}_total": (f"impact_{name}", "sum") for name in B3TR_IMPACT_NAMES
@@ -79,16 +92,16 @@ def _analyse_rewards(rewards: List["B3TRRewardEvent"]) -> pd.DataFrame:
     return out
 
 
-def create_rewards_summary(rewards: List[B3TRRewardEvent], file_name: str) -> None:
+def get_rewards_summary(round_id: int) -> pd.DataFrame:
     """
     Runs the analysis on the list of reward events for a round
     Saves the analysis to specified json file
     """
     logger.info("Running rewards analysis")
     try:
-        df = _analyse_rewards(rewards)
-        df.to_json(file_name, orient="records", indent=2)
-        logger.info(f"Analysis saved to file: {file_name}")
+        df_csv = _load_rewards_csv(round_id)
+        df_analysis = _analyse_rewards(df_csv)
+        return df_analysis
     except Exception as e:
         logger.error(f"Error in rewards analysis: {e}")
         raise e

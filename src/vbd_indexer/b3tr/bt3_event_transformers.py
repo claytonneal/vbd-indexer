@@ -6,7 +6,7 @@ from vbd_indexer.b3tr.b3tr_proof_parser import parse_reward_proof
 from vbd_indexer.utils.units import format_wei
 
 
-def transform_reward_event(raw_event: B3TRRewardDecodedEvent) -> B3TRRewardEvent:
+def transform_reward_event(raw_event: B3TRRewardDecodedEvent) -> B3TRRewardEvent | None:
     """
     Transform a raw Reward event into a final Reward event
     - amount (wei) to b3tr
@@ -17,6 +17,9 @@ def transform_reward_event(raw_event: B3TRRewardDecodedEvent) -> B3TRRewardEvent
         # get transformed fields
         b3tr_amount = format_wei(raw_event.amount)
         app_name = get_app_name(raw_event.app_id)
+        if app_name is None:
+            # blacklisted app
+            return None
         proof_impacts = parse_reward_proof(raw_event.proof)
 
         # return reward event
