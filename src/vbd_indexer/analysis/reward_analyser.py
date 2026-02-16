@@ -21,14 +21,14 @@ def _analyse_rewards(rewards: List["B3TRRewardEvent"]) -> pd.DataFrame:
 
     # build impact aggregations
     impact_aggs = {
-        f"total_{name}": (f"impact_{name}", "sum") for name in B3TR_IMPACT_NAMES
+        f"{name}_total": (f"impact_{name}", "sum") for name in B3TR_IMPACT_NAMES
     }
 
     # per-app summary
     summary_df = df.groupby("app_name", as_index=False).agg(
-        total_actions=("app_name", "size"),
-        unique_wallets=("receiver_address", "nunique"),
-        total_rewards=("amount", "sum"),
+        actions_total=("app_name", "size"),
+        wallets_unique=("receiver_address", "nunique"),
+        rewards_total=("amount", "sum"),
         **impact_aggs,
     )
 
@@ -44,10 +44,10 @@ def _analyse_rewards(rewards: List["B3TRRewardEvent"]) -> pd.DataFrame:
         wallet_counts["action_count"],
         bins=[0, 1, 5, 10, float("inf")],
         labels=[
-            "one_action",
-            "1_to_5_actions",
-            "5_to_10_actions",
-            "greater_than_10_actions",
+            "wallets_one_action",
+            "wallets_1_to_5_actions",
+            "wallets_5_to_10_actions",
+            "wallets_greater_than_10_actions",
         ],
         right=True,
         include_lowest=True,
@@ -63,10 +63,10 @@ def _analyse_rewards(rewards: List["B3TRRewardEvent"]) -> pd.DataFrame:
 
     # ensure consistent columns always exist
     expected = [
-        "one_action",
-        "1_to_5_actions",
-        "5_to_10_actions",
-        "greater_than_10_actions",
+        "wallets_one_action",
+        "wallets_1_to_5_actions",
+        "wallets_5_to_10_actions",
+        "wallets_greater_than_10_actions",
     ]
     for col in expected:
         if col not in bucket_df.columns:
