@@ -104,4 +104,4 @@ def get_rewards_summary(round_id: int) -> pd.DataFrame:
         return df_analysis
     except Exception as e:
         logger.error(f"Error in rewards analysis: {e}")
-        raise e
+        raise

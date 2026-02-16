@@ -34,4 +34,4 @@ def transform_reward_event(raw_event: B3TRRewardDecodedEvent) -> B3TRRewardEvent
         )
     except Exception as e:
         logger.error(f"Error transforming RewardRawEvent: {e}")
-        raise e
+        raise

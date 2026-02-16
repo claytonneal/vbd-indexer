@@ -8,3 +8,5 @@ THOR_ENDPOINTS = [
     "https://node.vechain.energy",
     "https://sync-mainnet.vechain.org",
 ]
+
+DEFAULT_THOR_ENDPOINT = "https://mainnet.vechain.org"

@@ -5,6 +5,7 @@ from eth_utils.crypto import keccak
 from loguru import logger
 
 from vbd_indexer.b3tr.b3tr_contracts import B3TR_CONTRACTS
+from vbd_indexer.config.app_config import DEFAULT_THOR_ENDPOINT
 from vbd_indexer.thor.thor_client import ThorClient, ThorClientOptions
 
 # cached values
@@ -22,7 +23,7 @@ def warm_app_name_cache(round_number: int) -> None:
         # clear cache if different round
         if _cached_app_map is not None:
             _cached_app_map.clear()
-    if round_number == _cached_app_map and _cached_app_map is not None:
+    if round_number == _cached_round and _cached_app_map is not None:
         # raise error if same round and already cached
         raise ValueError(f"App names are already cached for round: {round_number}")
     # setup cache
@@ -30,7 +31,7 @@ def warm_app_name_cache(round_number: int) -> None:
     _cached_app_map = {}
     # call contract function
     client_options = ThorClientOptions(
-        thor_url="https://mainnet.vechain.org", http_request_timeout=10
+        thor_url=DEFAULT_THOR_ENDPOINT, http_request_timeout=10
     )
     thor_client = ThorClient(client_options)
     try:

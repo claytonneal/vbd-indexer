@@ -5,6 +5,7 @@ from eth_utils.crypto import keccak
 from loguru import logger
 
 from vbd_indexer.b3tr.b3tr_contracts import B3TR_CONTRACTS
+from vbd_indexer.config.app_config import DEFAULT_THOR_ENDPOINT
 from vbd_indexer.thor.thor_client import ThorClient
 from vbd_indexer.thor.thor_client_options import ThorClientOptions
 
@@ -14,7 +15,7 @@ def get_block_range_for_round(round_number: int) -> Tuple[int, int]:
     Gets the start and end block number for a VBD round
     """
     client_options = ThorClientOptions(
-        thor_url="https://mainnet.vechain.org", http_request_timeout=10
+        thor_url=DEFAULT_THOR_ENDPOINT, http_request_timeout=10
     )
     thor_client = ThorClient(client_options)
     try:

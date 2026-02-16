@@ -100,7 +100,7 @@ class ThorClient:
             )
         return events
 
-    def call_contract(self, contract_address: str, call_data: str) -> dict:
+    def call_contract(self, contract_address: str, call_data: str) -> str:
         """
         Performs a contract call with the specified call data
         Returns the json data response without decoding

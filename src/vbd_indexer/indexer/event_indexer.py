@@ -34,7 +34,7 @@ class EventIndexer(Generic[EDecoded, ETransformed]):
 
     def __init__(self, options: IndexerOptions[EDecoded, ETransformed]) -> None:
         if options.round_number <= 0:
-            raise ValueError("round_id must be >= 0")
+            raise ValueError("round_id must be >= 1")
         if not options.thor_endpoints:
             raise ValueError("endpoints must not be empty")
         if options.task_block_size <= 0:
